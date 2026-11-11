@@ -1,0 +1,30 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}The Backrooms{% endblock %}</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{% static 'game/site.css' %}">
+</head>
+<body class="{{ theme|default:'theme-a' }}">
+  {% if theme == "theme-b" %}<div class="vhs-scan" aria-hidden="true"></div><div class="vhs-rec" aria-hidden="true">● REC</div>{% endif %}
+  <header class="topbar">
+    <a href="{% url 'home' %}" class="brand">THE BACKROOMS</a>
+    <nav>
+      {% if user.is_authenticated %}
+        <span class="who">{{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="inline">{% csrf_token %}<button type="submit" class="linkish">log out</button></form>
+      {% else %}
+        <a href="{% url 'login' %}">log in</a>
+        <a href="{% url 'signup' %}">sign up</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main class="stage">{% block content %}{% endblock %}</main>
+  <footer class="foot">
+    {% if variant %}UI variant {{ variant|upper }} · <a href="?v={{ other_variant }}">view variant {{ other_variant|upper }}</a>{% endif %}
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}How to play · The Backrooms{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>HOW TO SURVIVE</h1>
+  <p>You have <strong>{{ demo_seconds }} seconds</strong>. The timer starts on your first key press.</p>
+  <table>
+    <tr><th>Keys</th><th>Action</th></tr>
+    <tr><td><kbd>W</kbd> / <kbd>↑</kbd></td><td>Move forward</td></tr>
+    <tr><td><kbd>S</kbd> / <kbd>↓</kbd></td><td>Move backward</td></tr>
+    <tr><td><kbd>A</kbd> / <kbd>←</kbd></td><td>Turn left</td></tr>
+    <tr><td><kbd>D</kbd> / <kbd>→</kbd></td><td>Turn right</td></tr>
+    <tr><td><kbd>Space</kbd></td><td>Attack</td></tr>
+    <tr><td><kbd>R</kbd></td><td>Restart</td></tr>
+  </table>
+  <p class="muted">Something is walking toward you. Get close and hit it.</p>
+  <a class="btn" href="{% url 'play' %}" id="start-game">I'M READY</a>
+</section>
+{% endblock %}

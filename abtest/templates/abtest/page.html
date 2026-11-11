@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team {{ team_nickname }}</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: "Courier New", monospace;
+           background: #d9c97c repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 28px); color: #2b2410; }
+    main { background: #f3ead0; border: 2px solid #2b2410; padding: 2rem 2.5rem; max-width: 28rem; width: calc(100% - 3rem); box-shadow: 6px 6px 0 #2b2410; }
+    h1 { margin-top: 0; font-size: 1.4rem; }
+    ul { padding-left: 1.2rem; line-height: 1.7; }
+    #abtest { font: inherit; font-size: 1.3rem; padding: .7rem 2rem; background: #2b2410; color: #f3ead0; border: 0; cursor: pointer; }
+    #abtest:hover { background: #4a3e1c; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Team {{ team_nickname }}</h1>
+  <p>Our team:</p>
+  <ul>{% for m in members %}<li>{{ m }}</li>{% endfor %}</ul>
+  <form method="post" action="{% url 'abtest-click' %}">{% csrf_token %}
+    <button id="abtest" type="submit">{{ variant }}</button>
+  </form>
+</main>
+</body>
+</html>

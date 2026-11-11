@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Log in · The Backrooms{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>ENTER LEVEL 0</h1>
+  <p class="muted">Log in to keep your place. The hallways rearrange when you leave.</p>
+  <form method="post" action="{% url 'login' %}">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <label for="id_username">Email / username</label>
+    {{ form.username }}
+    <label for="id_password">Password</label>
+    {{ form.password }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn">LOG IN</button>
+  </form>
+  <p class="muted">New here? <a href="{% url 'signup' %}">Create an account</a></p>
+</section>
+{% endblock %}

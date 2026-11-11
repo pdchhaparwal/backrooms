@@ -1,0 +1,80 @@
+/* ---------- shared ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { min-height: 100vh; display: flex; flex-direction: column; font-family: "Courier New", Courier, monospace; }
+a { color: inherit; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1.2rem; gap: 1rem; flex-wrap: wrap; }
+.brand { font-weight: bold; letter-spacing: .25em; text-decoration: none; }
+.topbar nav { display: flex; gap: 1rem; align-items: center; }
+.inline { display: inline; margin: 0; }
+.linkish { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+.stage { flex: 1; display: grid; place-items: center; padding: 1.5rem 1rem; }
+.foot { text-align: center; padding: .8rem; font-size: .8rem; opacity: .75; }
+.card { width: 100%; max-width: 30rem; padding: 2rem; }
+.card h1 { margin-top: 0; }
+label { display: block; font-size: .85rem; margin: 1rem 0 .3rem; text-transform: uppercase; letter-spacing: .1em; }
+input[type=text], input[type=password], input[type=email] { width: 100%; padding: .7rem; font: inherit; font-size: 1rem; }
+.btn { display: inline-block; font: inherit; font-weight: bold; letter-spacing: .15em; text-decoration: none; cursor: pointer; border: 0; padding: .9rem 1.6rem; margin-top: 1.4rem; }
+.errorlist { list-style: none; padding: 0; margin: .5rem 0; color: #b3261e; font-size: .9rem; }
+.helptext, .help { font-size: .75rem; opacity: .75; display: block; margin-top: .3rem; }
+.muted { opacity: .75; font-size: .9rem; }
+.center { text-align: center; }
+
+/* ---------- Variant A: "Level 0" fluorescent yellow ---------- */
+.theme-a { color: #2b2410; background: #d9c97c repeating-linear-gradient(90deg, rgba(60,45,0,.07) 0 3px, transparent 3px 34px); }
+.theme-a .topbar { background: rgba(243,234,208,.6); border-bottom: 2px solid #2b2410; }
+.theme-a .card { background: #f3ead0; border: 2px solid #2b2410; box-shadow: 8px 8px 0 #2b2410; }
+.theme-a input { background: #fffbea; border: 2px solid #2b2410; color: #2b2410; }
+.theme-a .btn { background: #2b2410; color: #f3ead0; }
+.theme-a .btn:hover { background: #57471b; }
+.theme-a .hero { text-align: center; }
+.theme-a .hero h1 { font-size: clamp(2.6rem, 9vw, 5.5rem); margin: 0; letter-spacing: .12em; animation: buzz 6s infinite; }
+.theme-a .hero .btn { font-size: 1.4rem; padding: 1.1rem 2.8rem; }
+.theme-a table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.theme-a td, .theme-a th { border-bottom: 1px dashed #2b2410; padding: .55rem .3rem; text-align: left; }
+.theme-a kbd { background: #fffbea; border: 2px solid #2b2410; padding: 0 .4rem; font-family: inherit; font-weight: bold; }
+@keyframes buzz { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .35; } 94% { opacity: 1; } 96% { opacity: .6; } 97% { opacity: 1; } }
+
+/* ---------- Variant B: VHS found footage ---------- */
+.theme-b { color: #e9e6da; background: #0d0d0b radial-gradient(ellipse at center, #26241b 0%, #0d0d0b 70%); }
+.theme-b .topbar { border-bottom: 1px solid #3a382f; }
+.theme-b .card { background: rgba(0,0,0,.55); border: 1px solid #5a574a; }
+.theme-b input { background: #000; border: 1px solid #8b8770; color: #f5e88a; }
+.theme-b input:focus { outline: 2px solid #f5e88a; }
+.theme-b .btn { background: #c8221e; color: #fff; text-transform: uppercase; }
+.theme-b .btn:hover { background: #e2342f; }
+.theme-b h1 { font-weight: normal; letter-spacing: .2em; text-shadow: 2px 0 #c8221e, -2px 0 #2bb4d6; }
+.theme-b .tape { font-size: .85rem; letter-spacing: .3em; color: #f5e88a; }
+.theme-b .hero { text-align: center; }
+.theme-b .hero h1 { font-size: clamp(2rem, 7vw, 4.2rem); margin: .4rem 0 1rem; }
+.theme-b .hero .btn { font-size: 1.3rem; padding: 1rem 2.6rem; }
+.theme-b .cursor { animation: blink 1s steps(1) infinite; }
+.vhs-scan { position: fixed; inset: 0; pointer-events: none; z-index: 5;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px); }
+.vhs-rec { position: fixed; top: 4.2rem; right: 1.2rem; color: #e2342f; font-weight: bold; letter-spacing: .2em; z-index: 6; animation: blink 1.2s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.keys { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; margin: 1.4rem 0; }
+.cluster { display: grid; grid-template-columns: repeat(3, 2.6rem); grid-template-rows: repeat(2, 2.6rem); gap: .35rem; justify-content: center; }
+.cap { display: grid; place-items: center; border: 1px solid #b9b5a0; border-bottom-width: 4px; border-radius: 4px; font-weight: bold; background: #1a1a16; }
+.cap.top { grid-column: 2; grid-row: 1; }
+.cluster .cap:not(.top) { grid-row: 2; }
+.keys figure { margin: 0; }
+.cap.space { width: 100%; height: 2.6rem; }
+.keys figcaption { text-align: center; font-size: .8rem; margin-top: .5rem; color: #f5e88a; }
+.keys .wide { grid-column: 1 / -1; }
+
+/* ---------- Game page ---------- */
+.theme-play { background: #0b0b09; color: #e8e2c4; }
+.theme-play .topbar { border-bottom: 1px solid #2c2a22; }
+.game-wrap { width: 100%; max-width: 960px; }
+.screen { position: relative; width: 100%; aspect-ratio: 16 / 10; background: #000; border: 2px solid #3d3a2c; }
+#view { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.hud { position: absolute; top: .6rem; left: .8rem; right: .8rem; display: flex; justify-content: space-between; font-weight: bold; text-shadow: 1px 1px 0 #000; pointer-events: none; }
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; background: rgba(0,0,0,.6); padding: 1rem; }
+.overlay[hidden] { display: none; }
+.overlay h2 { margin: 0 0 .6rem; letter-spacing: .2em; color: #f5e88a; }
+.overlay .btn { background: #d9c97c; color: #1a1608; margin: 1rem .4rem 0; }
+.keypanel { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-top: .9rem; }
+.keypanel span { min-width: 2.4rem; padding: .35rem .5rem; text-align: center; border: 1px solid #5a574a; border-bottom-width: 3px; border-radius: 4px; font-size: .8rem; transition: background .05s; }
+.keypanel span.on { background: #d9c97c; color: #111; border-color: #d9c97c; }
+.keypanel span.wide { min-width: 7rem; }

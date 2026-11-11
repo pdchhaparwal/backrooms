@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Briefing · The Backrooms{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="tape">BRIEFING · TAPE LENGTH {{ demo_seconds }}s</div>
+  <h1>CONTROLS<span class="cursor">_</span></h1>
+  <div class="keys">
+    <figure>
+      <div class="cluster"><span class="cap top">W</span><span class="cap">A</span><span class="cap">S</span><span class="cap">D</span></div>
+      <figcaption>move / turn</figcaption>
+    </figure>
+    <figure>
+      <div class="cluster"><span class="cap top">↑</span><span class="cap">←</span><span class="cap">↓</span><span class="cap">→</span></div>
+      <figcaption>same, on arrows</figcaption>
+    </figure>
+    <figure class="wide">
+      <div class="cap space">SPACE</div>
+      <figcaption>attack the entity</figcaption>
+    </figure>
+  </div>
+  <p class="muted">The tape starts rolling on your first key press. R rewinds.</p>
+  <a class="btn" href="{% url 'play' %}" id="start-game">▶ Begin tape</a>
+</section>
+{% endblock %}

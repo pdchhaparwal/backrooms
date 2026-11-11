@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Level 0 · The Backrooms{% endblock %}
+{% block content %}
+<section class="game-wrap">
+  <div class="screen">
+    <canvas id="view" width="320" height="200" data-seconds="{{ demo_seconds }}" aria-label="Backrooms level 0"></canvas>
+    <div class="hud"><span id="msg"></span><span id="timer">{{ demo_seconds }}.0s</span></div>
+
+    <div class="overlay" id="overlay-start">
+      <div>
+        <h2>LEVEL 0</h2>
+        <p>Press <b>W</b> or <b>↑</b> to start your {{ demo_seconds }}-second run.</p>
+        <p class="muted">WASD / arrows to move and turn · SPACE to attack · M to mute</p>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay-end" hidden>
+      <div>
+        <h2>END OF DEMO</h2>
+        <p id="summary"></p>
+        <p id="tested" class="muted"></p>
+        <button type="button" class="btn" id="again">Play again (R)</button>
+        <a class="btn" href="{% url 'home' %}">Menu</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="keypanel" aria-label="Key press monitor">
+    <span data-code="KeyW">W</span><span data-code="KeyA">A</span><span data-code="KeyS">S</span><span data-code="KeyD">D</span>
+    <span data-code="ArrowUp">↑</span><span data-code="ArrowLeft">←</span><span data-code="ArrowDown">↓</span><span data-code="ArrowRight">→</span>
+    <span data-code="Space" class="wide">SPACE</span>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'game/backrooms.js' %}"></script>{% endblock %}

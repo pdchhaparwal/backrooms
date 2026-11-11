@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>THE BACKROOMS</h1>
+  <p>Level 0. Mono-yellow wallpaper, damp carpet,<br>and lights that never stop humming.</p>
+  <a class="btn" href="{% url 'instructions' %}" id="play-now">PLAY NOW</a>
+  <p class="muted">Logged in as {{ user.username }}</p>
+</section>
+{% endblock %}

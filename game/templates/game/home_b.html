@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="tape">FOUND FOOTAGE · CAM 03 · 11.11.2026</div>
+  <h1>THE BACKROOMS</h1>
+  <p>Somebody noclipped out of reality.<br>Somebody has to go in after them.</p>
+  <a class="btn" href="{% url 'instructions' %}" id="play-now">▶ Play now</a>
+  <p class="muted">operator: {{ user.username }}</p>
+</section>
+{% endblock %}

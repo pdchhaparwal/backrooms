@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign up · The Backrooms{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{% if variant == "b" %}NEW OPERATOR<span class="cursor">_</span>{% else %}CREATE ACCOUNT{% endif %}</h1>
+  <form method="post" action="{% url 'signup' %}">{% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    {% endfor %}
+    <button type="submit" class="btn">SIGN UP</button>
+  </form>
+  <p class="muted">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</section>
+{% endblock %}

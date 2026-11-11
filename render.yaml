@@ -1,0 +1,23 @@
+# Render Blueprint for STAGING.
+# DATABASE_URL = your Neon Postgres connection string (set in the Render dashboard, never committed).
+services:
+  - type: web
+    name: backrooms-staging
+    runtime: python
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    # Free tier has no pre-deploy hook, so migrate + seed run at boot (both are safe to repeat).
+    startCommand: python manage.py migrate --noinput && python manage.py seed && gunicorn config.wsgi --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_PLAYER_PASSWORD
+        sync: false

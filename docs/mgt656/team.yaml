@@ -1,0 +1,19 @@
+# Team config. The app reads this file: the A/B page lives at /<first 7 hex chars of sha1(team)>.
+# `team` must match the course-assigned team nickname exactly.
+# `nickname` = each member's course nickname. GitHub usernames are used until we have them.
+team: 656-mba-backrooms
+framework: django
+database: postgres
+members:
+  - nickname: pdchhaparwal
+    github: pdchhaparwal
+  - nickname: apoorve-tyagi
+    github: apoorve-tyagi
+  - nickname: PrabhashC
+    github: PrabhashC
+  - nickname: keshhh
+    github: keshhh
+  - nickname: GLM321
+    github: GLM321
+  - nickname: shashwatb10
+    github: shashwatb10

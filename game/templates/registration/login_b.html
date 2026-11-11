@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Identify yourself · The Backrooms{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="tape">TAPE 01 · CHECKPOINT</div>
+  <h1>IDENTIFY YOURSELF<span class="cursor">_</span></h1>
+  <form method="post" action="{% url 'login' %}">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <label for="id_username">&gt; operator id</label>
+    {{ form.username }}
+    <label for="id_password">&gt; passphrase</label>
+    {{ form.password }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn">▶ Authenticate</button>
+  </form>
+  <p class="muted">No record on file? <a href="{% url 'signup' %}">Register a new operator</a></p>
+</section>
+{% endblock %}
