@@ -6,11 +6,16 @@
 #   PROJECT_OWNER=<user-or-org> PROJECT_NUMBER=<n> ./scripts/create_backlog.sh
 set -euo pipefail
 
-gh label create "user story" --color "D4C66A" --description "User story for the backlog" --force >/dev/null
+# Uses the REST API only. Repo defaults to the `origin` remote; override with REPO=owner/name.
+REPO="${REPO:-$(git remote get-url origin | sed -E 's#.*github\.com[:/]##; s#\.git$##')}"
+echo "repo: $REPO"
+
+gh api "repos/$REPO/labels" -f name="user story" -f color="D4C66A" \
+  -f description="User story for the backlog" >/dev/null 2>&1 || true   # already exists is fine
 
 story() {
   local title="$1" body="$2" url
-  url=$(gh issue create --title "$title" --label "user story" --body "$body")
+  url=$(gh api "repos/$REPO/issues" -f title="$title" -f body="$body" -f "labels[]=user story" --jq .html_url)
   echo "created: $url"
   if [[ -n "${PROJECT_NUMBER:-}" && -n "${PROJECT_OWNER:-}" ]]; then
     gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$url" >/dev/null && echo "  added to project $PROJECT_NUMBER"
