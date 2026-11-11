@@ -13,7 +13,7 @@ Get the pipeline working end to end before building real features: a Django app 
   - Playable 5-second Level 0 demo: WASD/arrows to move and turn, Space to attack, one entity, end screen listing which controls were tested
   - 24 automated tests (A/B counting rules, stats, seed, auth, page variants), passing against Postgres
 - Backlog: 10 user stories with acceptance criteria, [#1](https://github.com/pdchhaparwal/backrooms/issues/1) to [#10](https://github.com/pdchhaparwal/backrooms/issues/10), labeled [`user story`](https://github.com/pdchhaparwal/backrooms/issues?q=label%3A%22user+story%22)
-- [Project board](TODO-link-to-project) with one iteration per sprint
+- [Project board](https://github.com/users/pdchhaparwal/projects/2) with one iteration per sprint (Sprint 1 Nov 3–11, Sprint 2 Nov 12–18, Sprint 3 Nov 19–Dec 2, Sprint 4 Dec 3–11) and every story assigned to one
 
 ## What works on staging now
 Staging: https://backrooms-staging.onrender.com (Render web service, Neon Postgres)
