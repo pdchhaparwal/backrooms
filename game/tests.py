@@ -86,4 +86,20 @@ class VariantTests(TestCase):
         self.assertContains(self.client.get("/accounts/login/?v=b"), "IDENTIFY YOURSELF")
 
     def test_healthz(self):
-        self.assertEqual(self.client.get("/healthz").content, b"ok")
+        r = self.client.get("/healthz")
+        self.assertEqual(r.content, b"ok")
+        self.assertEqual(r["X-App-Env"], "local")
+
+    def test_healthz_reports_database_failure(self):
+        with mock.patch("game.views.connection.cursor", side_effect=Exception("db down")):
+            with self.assertLogs("game.views", level="ERROR"):
+                r = self.client.get("/healthz")
+        self.assertEqual(r.status_code, 503)
+
+    @override_settings(APP_ENV="staging")
+    def test_staging_badge_shown(self):
+        self.assertContains(self.client.get("/"), "env-badge")
+
+    @override_settings(APP_ENV="production")
+    def test_no_badge_on_production(self):
+        self.assertNotContains(self.client.get("/"), "env-badge")

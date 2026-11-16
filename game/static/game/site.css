@@ -19,6 +19,8 @@ input[type=text], input[type=password], input[type=email] { width: 100%; padding
 .helptext, .help { font-size: .75rem; opacity: .75; display: block; margin-top: .3rem; }
 .muted { opacity: .75; font-size: .9rem; }
 .center { text-align: center; }
+.env-badge { font-size: .7rem; letter-spacing: .15em; padding: .15rem .45rem; border: 1px solid currentColor; margin-right: auto; opacity: .85; }
+.env-staging { background: #b3261e; color: #fff; border-color: #b3261e; }
 
 /* ---------- Variant A: "Level 0" fluorescent yellow ---------- */
 .theme-a { color: #2b2410; background: #d9c97c repeating-linear-gradient(90deg, rgba(60,45,0,.07) 0 3px, transparent 3px 34px); }

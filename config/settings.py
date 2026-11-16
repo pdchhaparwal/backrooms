@@ -6,6 +6,7 @@ from pathlib import Path
 
 import dj_database_url
 import yaml
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,6 +17,10 @@ def env_bool(name, default=False):
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-secret-key-change-me")
 DEBUG = env_bool("DEBUG", False)
+
+# Which environment this deploy is: local | staging | production (set in render.yaml).
+APP_ENV = os.environ.get("APP_ENV", "local").strip().lower()
+DEPLOYED = APP_ENV in {"staging", "production"}
 
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
@@ -60,6 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "game.context_processors.app_env",
             ],
         },
     },
@@ -68,6 +74,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Postgres via DATABASE_URL on staging/production. Local dev falls back to SQLite.
+# A deployed environment must never silently fall back to SQLite on Render's
+# throwaway disk (data would vanish on every deploy), so fail loudly instead.
+if DEPLOYED and not os.environ.get("DATABASE_URL"):
+    raise ImproperlyConfigured(f"DATABASE_URL must be set when APP_ENV={APP_ENV}")
+if DEPLOYED and SECRET_KEY.startswith("dev-only"):
+    raise ImproperlyConfigured(f"SECRET_KEY must be set when APP_ENV={APP_ENV}")
+
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",

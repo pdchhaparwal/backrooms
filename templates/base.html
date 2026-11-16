@@ -11,6 +11,7 @@
   {% if theme == "theme-b" %}<div class="vhs-scan" aria-hidden="true"></div><div class="vhs-rec" aria-hidden="true">● REC</div>{% endif %}
   <header class="topbar">
     <a href="{% url 'home' %}" class="brand">THE BACKROOMS</a>
+    {% if app_env != "production" %}<span class="env-badge env-{{ app_env }}" title="Not the production site">{{ app_env|upper }}</span>{% endif %}
     <nav>
       {% if user.is_authenticated %}
         <span class="who">{{ user.username }}</span>

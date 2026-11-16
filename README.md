@@ -223,9 +223,20 @@ python manage.py seed
 - On Render it runs on **every deploy**, so changing a password in Render's Environment tab and redeploying resets the account to the new password.
 - Locally with `DEBUG=true` and no env vars, all three use `backrooms-local-only`.
 
-## 10. Deploying to staging (Render + Neon)
+## 10. Deploying: staging and production (Render + Neon)
 
-Staging is already live; these steps are for reference or for standing up production in Sprint 2.
+| | Staging | Production |
+|---|---|---|
+| Render service | `backrooms-staging` | `backrooms-production` |
+| Deploys from | `main`, automatically on every merge | `production` branch only |
+| Database | its own Neon database | its own, separate Neon database |
+| `APP_ENV` | `staging` (red STAGING badge in the nav) | `production` (no badge) |
+
+**Release flow:** branch → pull request (CI runs the tests on Postgres) → teammate review → merge to `main` → staging deploys → check staging → **promote**: GitHub → **Actions** → **Promote to production** → **Run workflow**. That fast-forwards the `production` branch to `main`, and Render deploys it. (Same thing from a terminal: `git push origin main:production`.)
+
+Both services use `healthCheckPath: /healthz`, which returns 200 only if the app can reach its database. If `APP_ENV` is `staging` or `production` and `DATABASE_URL` is missing, the app refuses to start rather than silently using a throwaway SQLite file.
+
+Setting up an environment from scratch:
 
 1. **Database (Neon):** create a project → **Connect** → choose the database and role, turn **Connection pooling off**, and copy the connection string (`postgresql://…?sslmode=require`).
 2. **App (Render):** **New → Blueprint** → select this repo. Render reads `render.yaml` and asks for:
@@ -247,6 +258,7 @@ Staging is already live; these steps are for reference or for standing up produc
 | `SECRET_KEY` | Yes (auto-generated) | insecure dev key | Django signing key |
 | `SEED_ADMIN_PASSWORD` | Yes | — | Password for `admin@example.com` |
 | `SEED_PLAYER_PASSWORD` | Yes | — | Password for `player1@` / `player2@example.com` |
+| `APP_ENV` | Set in `render.yaml` | `local` | `staging` or `production`; shows the env badge and enforces `DATABASE_URL` |
 | `PYTHON_VERSION` | Set in `render.yaml` | — | Python version on Render (3.12.8) |
 | `DEBUG` | No | `false` | Debug mode; local only |
 | `ALLOWED_HOSTS` | No | `localhost,127.0.0.1` | Extra hostnames (Render's hostname is added automatically) |
