@@ -1,5 +1,12 @@
-# Render Blueprint for STAGING.
-# DATABASE_URL = your Neon Postgres connection string (set in the Render dashboard, never committed).
+# Render Blueprint: STAGING and PRODUCTION, each with its own Neon Postgres database.
+#
+#   staging     deploys automatically on every merge to `main`
+#   production  deploys only from the `production` branch. Promoting is a deliberate
+#               step: run the "Promote to production" GitHub Action
+#               (or `git push origin main:production`).
+#
+# Secrets (DATABASE_URL, seed passwords, OPENROUTER_API_KEY) are entered in the Render
+# dashboard, never committed (sync: false). Each service has its OWN DATABASE_URL.
 services:
   - type: web
     name: backrooms-staging
@@ -7,10 +14,13 @@ services:
     plan: free
     branch: main
     autoDeploy: true
+    healthCheckPath: /healthz
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     # Free tier has no pre-deploy hook, so migrate + seed run at boot (both are safe to repeat).
     startCommand: python manage.py migrate --noinput && python manage.py seed && gunicorn config.wsgi --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
     envVars:
+      - key: APP_ENV
+        value: staging
       - key: PYTHON_VERSION
         value: 3.12.8
       - key: SECRET_KEY
@@ -20,4 +30,31 @@ services:
       - key: SEED_ADMIN_PASSWORD
         sync: false
       - key: SEED_PLAYER_PASSWORD
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+
+  - type: web
+    name: backrooms-production
+    runtime: python
+    plan: free
+    branch: production
+    autoDeploy: true
+    healthCheckPath: /healthz
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && python manage.py seed && gunicorn config.wsgi --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_PLAYER_PASSWORD
+        sync: false
+      - key: OPENROUTER_API_KEY
         sync: false

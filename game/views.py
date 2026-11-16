@@ -1,12 +1,17 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
+from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 from . import variants
+
+logger = logging.getLogger(__name__)
 
 
 class VariantLoginView(LoginView):
@@ -58,4 +63,14 @@ def play(request):
 
 
 def healthz(request):
-    return HttpResponse("ok", content_type="text/plain")
+    """Render's health check: 200 "ok" only if the app can reach its database."""
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+    except Exception:  # any database failure means unhealthy
+        logger.exception("health check: database unreachable")
+        return HttpResponse("database unavailable", status=503, content_type="text/plain")
+    response = HttpResponse("ok", content_type="text/plain")
+    response["X-App-Env"] = settings.APP_ENV
+    return response
