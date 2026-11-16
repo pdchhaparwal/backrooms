@@ -1,4 +1,4 @@
-# The Backrooms — MGT656 team `656-mba-backrooms`
+# The Backrooms — MGT656 team `mighty-frog`
 
 A small first-person web game set in "Level 0" of the Backrooms: endless mono-yellow hallways, damp carpet, humming fluorescent lights, and something walking toward you.
 
@@ -7,8 +7,8 @@ This repo is our **Sprint 1 walking skeleton**: the whole pipeline (accounts →
 | | |
 |---|---|
 | **Staging app** | https://backrooms-staging.onrender.com |
-| **A/B test page** | https://backrooms-staging.onrender.com/ef88062 |
-| **A/B stats (JSON)** | https://backrooms-staging.onrender.com/ef88062/stats |
+| **A/B test page** | https://backrooms-staging.onrender.com/afcf5a1 |
+| **A/B stats (JSON)** | https://backrooms-staging.onrender.com/afcf5a1/stats |
 | **Project board** | https://github.com/users/pdchhaparwal/projects/2 |
 | **Backlog** | [Issues labeled `user story`](https://github.com/pdchhaparwal/backrooms/issues?q=label%3A%22user+story%22) |
 | **Sprint 1 report** | [`docs/mgt656/sprints/sprint-1.md`](docs/mgt656/sprints/sprint-1.md) |
@@ -48,7 +48,7 @@ This repo is our **Sprint 1 walking skeleton**: the whole pipeline (accounts →
 
    Or create your own account at `/accounts/signup/`.
 3. Click **Play Now** → read the instructions → click **I'm ready** / **Begin tape** → press **W** to start the 5-second run.
-4. Check the A/B test: open `/ef88062` in a private window, click the button, then open `/ef88062/stats`.
+4. Check the A/B test: open `/afcf5a1` in a private window, click the button, then open `/afcf5a1/stats`.
 5. As admin, open `/admin/` → **Impressions** and **Clicks** to see the raw A/B rows with timestamps.
 
 ## 2. How to play
@@ -90,10 +90,10 @@ These are the foundation for Sprint 2's experiment ([#4](https://github.com/pdch
 ## 4. The A/B test page
 
 **URL:** `/<hash>` where `hash` = the first 7 hex characters of `sha1(team nickname)`.
-Our nickname is `656-mba-backrooms`, so the page is **`/ef88062`** and the stats are **`/ef88062/stats`**.
+Our nickname is `mighty-frog`, so the page is **`/afcf5a1`** and the stats are **`/afcf5a1/stats`**. (Sprint 1 mistakenly used `656-mba-backrooms` → `/ef88062`; that URL now redirects here.)
 
 ```bash
-python -c "import hashlib; print(hashlib.sha1(b'656-mba-backrooms').hexdigest()[:7])"   # ef88062
+python -c "import hashlib; print(hashlib.sha1(b'mighty-frog').hexdigest()[:7])"   # afcf5a1
 ```
 
 **What the page does (matches the course spec):**
@@ -106,9 +106,9 @@ python -c "import hashlib; print(hashlib.sha1(b'656-mba-backrooms').hexdigest()[
 | Each new visitor gets a random 50/50 variant, kept in their session | `random.choice(["kudos", "thanks"])` on the **server**; visitor id stored in the Django session |
 | One impression per visitor; reloads/redirects don't count again | `Impression.visitor_id` is unique; existing visitors are looked up, not re-inserted |
 | Click via `<form method="post">`, at most once per visitor | `Click` has a one-to-one link to the visitor's `Impression`; duplicates are ignored |
-| Redirect back adds no impression and keeps the variant | Click view redirects to `/ef88062`, which finds the existing impression |
+| Redirect back adds no impression and keeps the variant | Click view redirects to `/afcf5a1`, which finds the existing impression |
 | Impressions and clicks stored with timestamps | `created_at` on both models, in Postgres |
-| `/ef88062/stats` returns live JSON with `preferred` | Computed from the database on every request |
+| `/afcf5a1/stats` returns live JSON with `preferred` | Computed from the database on every request |
 
 **Example stats response:**
 ```json
@@ -139,7 +139,7 @@ Code: [`abtest/`](abtest/) — `models.py`, `views.py`, `urls.py`, `tests.py`.
                        ├─ /accounts/*        Django auth (login variants, signup, logout)
                        ├─ / /instructions/   Play Now + instructions (variants, login required)
                        ├─ /play/             game page → static/game/backrooms.js
-                       ├─ /ef88062[/stats]   A/B test (public)
+                       ├─ /afcf5a1[/stats]   A/B test (public)
                        └─ /admin/            Django admin
 ```
 
@@ -285,7 +285,7 @@ Staging is already live; these steps are for reference or for standing up produc
 
 ## 14. Team
 
-Team nickname: **`656-mba-backrooms`**
+Team nickname: **`mighty-frog`**
 
 | GitHub |
 |---|

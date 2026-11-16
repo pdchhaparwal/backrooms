@@ -21,8 +21,19 @@ class HashTests(TestCase):
         self.assertEqual(settings.AB_HASH, hashlib.sha1(settings.TEAM_NICKNAME.encode()).hexdigest()[:7])
 
     def test_team_nickname_hash(self):
-        self.assertEqual(settings.TEAM_NICKNAME, "656-mba-backrooms")
-        self.assertEqual(settings.AB_HASH, "ef88062")
+        # Course-assigned TEAM nickname (656.mba), not a member's or the repo's name.
+        self.assertEqual(settings.TEAM_NICKNAME, "mighty-frog")
+        self.assertEqual(settings.AB_HASH, "afcf5a1")
+
+    def test_course_example_hash(self):
+        # The requirements doc's sanity check: bright-forest -> 211c220.
+        self.assertEqual(hashlib.sha1(b"bright-forest").hexdigest()[:7], "211c220")
+
+    def test_legacy_sprint1_url_redirects_without_counting(self):
+        r = self.client.get("/ef88062")
+        self.assertRedirects(r, URL, fetch_redirect_response=False)
+        self.assertRedirects(self.client.get("/ef88062/stats"), URL + "/stats", fetch_redirect_response=False)
+        self.assertEqual(Impression.objects.count(), 0)
 
 
 class PageTests(TestCase):
