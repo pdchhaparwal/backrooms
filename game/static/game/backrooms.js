@@ -14,6 +14,7 @@
   const ui = {
     timer: $('timer'), msg: $('msg'), start: $('overlay-start'), end: $('overlay-end'),
     summary: $('summary'), tested: $('tested'), again: $('again'), saved: $('saved'),
+    radio: $('radio'), radioText: $('radio-text'), journal: $('journal'),
   };
 
   // '#' = wall. Randomly segmented, mostly empty rooms.
@@ -75,6 +76,7 @@
     ui.start.hidden = false;
     ui.end.hidden = true;
     if (ui.saved) ui.saved.textContent = '';
+    if (ui.journal) { ui.journal.hidden = true; ui.journal.textContent = ''; }
     ui.msg.textContent = '';
     ui.timer.textContent = DEMO_SECONDS.toFixed(1) + 's';
   }
@@ -105,21 +107,54 @@
       (ent.alive ? ' · the entity is still out there' : ' · <b>entity banished</b>');
     ui.tested.textContent = 'Controls tested: ' + all.map((c) => KEY_LABELS[c] + (stats.tested.has(c) ? ' ✓' : ' ·')).join('  ');
     ui.end.hidden = false;
-    saveRun();
+    saveRun().then((runId) => askRadio('ended', runId));
+  }
+
+  // ---- the radio: AI survival assistant (server calls the LLM; see assistant/llm.py) ----
+  let radioBusy = false;
+  function situation(phase, runId) {
+    const dx = ent.x - player.x, dy = ent.y - player.y;
+    let ang = Math.atan2(dy, dx) - player.a;
+    ang = Math.atan2(Math.sin(ang), Math.cos(ang));
+    const s = {
+      phase, time_left: +timeLeft.toFixed(2), seconds_total: DEMO_SECONDS, distance: +stats.dist.toFixed(2),
+      attacks: stats.attacks, hits: stats.hits, touched: stats.touched, entity_alive: ent.alive,
+      entity_distance: +Math.min(100, Math.hypot(dx, dy)).toFixed(2), entity_ahead: Math.abs(ang) < 0.8,
+    };
+    if (runId) s.run_id = runId;
+    return s;
+  }
+  function askRadio(phase, runId) {
+    const url = canvas.dataset.radioUrl;
+    if (!url || !ui.radio || radioBusy) return;
+    radioBusy = true;
+    ui.radio.classList.add('waiting');
+    ui.radioText.textContent = 'kkhhhh… tuning…';
+    post(url, situation(phase, runId))
+      .then((d) => {
+        ui.radioText.textContent = d.hint;
+        if (phase === 'ended' && ui.journal) {
+          ui.journal.innerHTML = '<b>JOURNAL</b> ';
+          ui.journal.append(document.createTextNode(d.journal));
+          ui.journal.hidden = false;
+        }
+      })
+      .catch((status) => { ui.radioText.textContent = status === 429 ? 'The radio is silent. It has said enough for today.' : 'Only static.'; })
+      .finally(() => { radioBusy = false; ui.radio.classList.remove('waiting'); });
   }
 
   // Send the finished run to the server, which stores it for the logged-in player.
   function saveRun() {
     const url = canvas.dataset.saveUrl;
-    if (!url || !ui.saved) return;
+    if (!url || !ui.saved) return Promise.resolve(null);
     ui.saved.textContent = 'saving run…';
     const run = {
       seconds: +(DEMO_SECONDS - timeLeft).toFixed(2), distance: +stats.dist.toFixed(2),
       attacks: stats.attacks, hits: stats.hits, touched: stats.touched, banished: !ent.alive,
     };
-    post(url, run)
-      .then((d) => { ui.saved.textContent = d.personal_best ? 'Run saved · NEW PERSONAL BEST' : 'Run saved to your history'; })
-      .catch(() => { ui.saved.textContent = 'Could not save this run.'; });
+    return post(url, run)
+      .then((d) => { ui.saved.textContent = (d.personal_best || d.first_run) ? 'Run saved · NEW PERSONAL BEST' : 'Run saved to your history'; return d.id; })
+      .catch(() => { ui.saved.textContent = 'Could not save this run.'; return null; });
   }
 
   function flash(text) { ui.msg.textContent = text; msgT = 1.2; }
@@ -137,10 +172,11 @@
 
   window.addEventListener('keydown', (e) => {
     const action = KEYMAP[e.code];
-    if (action || e.code === 'KeyR' || e.code === 'KeyM') e.preventDefault();
+    if (action || e.code === 'KeyR' || e.code === 'KeyM' || e.code === 'KeyH') e.preventDefault();
     lightKey(e.code, true);
     if (e.code === 'KeyR') { reset(); return; }
     if (e.code === 'KeyM') { toggleMute(); return; }
+    if (e.code === 'KeyH') { if (!e.repeat) askRadio(state === 'over' ? 'ended' : 'running'); return; }
     if (!action || state === 'over') return;
     if (state === 'ready') start();
     stats.tested.add(e.code);

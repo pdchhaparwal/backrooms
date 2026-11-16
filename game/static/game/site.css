@@ -84,6 +84,11 @@ body:has(.runs) .stage { place-items: start center; align-content: center; gap: 
 .overlay[hidden] { display: none; }
 .overlay h2 { margin: 0 0 .6rem; letter-spacing: .2em; color: #f5e88a; }
 .overlay .btn { background: #d9c97c; color: #1a1608; margin: 1rem .4rem 0; }
+.radio { margin: .7rem 0 0; padding: .55rem .8rem; border: 1px dashed #5a574a; font-size: .9rem; min-height: 2.6rem; }
+.radio-tag { color: #0b0b09; background: #d9c97c; padding: 0 .35rem; font-weight: bold; letter-spacing: .15em; margin-right: .3rem; }
+.radio.waiting #radio-text { animation: blink 1s steps(1) infinite; }
+.journal { max-width: 34rem; margin: .6rem auto 0; text-align: left; font-style: italic; color: #f5e88a; font-size: .9rem; }
+.journal b { font-style: normal; letter-spacing: .15em; }
 .keypanel { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-top: .9rem; }
 .keypanel span { min-width: 2.4rem; padding: .35rem .5rem; text-align: center; border: 1px solid #5a574a; border-bottom-width: 3px; border-radius: 4px; font-size: .8rem; transition: background .05s; }
 .keypanel span.on { background: #d9c97c; color: #111; border-color: #d9c97c; }

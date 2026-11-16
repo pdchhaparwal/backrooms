@@ -64,7 +64,10 @@ You start in a corridor of Level 0. A dark figure stands a few tiles ahead and w
 | `Space` | Attack (swing the pipe) — hits if the entity is close and in front of you |
 | `R` | Restart the run |
 | `M` | Mute / unmute the fluorescent hum |
+| `H` | Ask **the radio** (AI survival assistant) for a hint |
 
+- **Runs are saved.** When a run ends it is stored for your account; the Play Now page lists your last 5 runs and your best (entity banished first, then most tiles walked).
+- **The radio (AI feature, started in Sprint 2).** Press `H` any time for a cryptic hint based on your current situation; when a run ends, the radio also writes an eerie journal entry about it. The browser only sends numbers (time left, distance, where the entity is); the server calls the LLM through OpenRouter and asks for JSON `{"hint", "journal"}`. With no API key, or if the call fails or times out, built-in rules answer instead, so the game never breaks. Each player gets 40 replies per 24 hours. Every reply is stored (admin → *Radio messages*). Code: [`assistant/`](assistant/).
 - A **key monitor** under the game lights up each key as you press it, so you can confirm every control registers.
 - The **end screen** shows distance walked, attacks and hits, whether the entity was banished, and a checklist of which controls you tested (✓ / ·).
 - Want a longer run? Add `?t=30` to the URL (`/play/?t=30` = 30 seconds; 1–600 allowed).
@@ -85,7 +88,7 @@ The **login**, **Play Now** and **instructions** pages each have two designs:
 - The footer of every variant page shows which one you're on and links to the other.
 - Logic: [`game/variants.py`](game/variants.py). Templates: `game/templates/registration/login_{a,b}.html`, `game/templates/game/home_{a,b}.html`, `game/templates/game/instructions_{a,b}.html`.
 
-These are the foundation for Sprint 2's experiment ([#4](https://github.com/pdchhaparwal/backrooms/issues/4)): measuring which Play Now design gets more players into the game.
+**Play Now experiment ([#4](https://github.com/pdchhaparwal/backrooms/issues/4)).** Each session's first Play Now view records the design it saw, and the first run that session starts counts as a conversion. Staff see views, runs started and conversion rate per design at **`/experiment/`** (link in the nav when logged in as admin). Code: [`game/experiment.py`](game/experiment.py).
 
 ## 4. The A/B test page
 
@@ -265,6 +268,10 @@ Setting up an environment from scratch:
 | `DEMO_SECONDS` | No | `5` | Length of a game run |
 | `TEAM_NICKNAME` | No | from `team.yaml` | Override the nickname used for the A/B hash |
 | `LOG_LEVEL` | No | `INFO` | Logging level |
+| `OPENROUTER_API_KEY` | For real AI replies | — | Server-side OpenRouter key. Without it the radio uses built-in rules |
+| `OPENROUTER_MODEL` | No | `anthropic/claude-haiku-4.5` | Any OpenRouter model id |
+| `OPENROUTER_TIMEOUT` | No | `8` | Seconds before falling back to the rules |
+| `ASSISTANT_DAILY_LIMIT` | No | `40` | Radio replies per player per 24 hours |
 
 ## 12. How we work: sprints, backlog, board
 
