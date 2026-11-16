@@ -83,6 +83,16 @@
     state = 'running';
     ui.start.hidden = true;
     startHum();
+    post(canvas.dataset.startedUrl, {}).catch(() => {});  // Play Now experiment conversion
+  }
+
+  function post(url, body) {
+    if (!url) return Promise.reject(new Error('no url'));
+    return fetch(url, {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': canvas.dataset.csrf },
+      body: JSON.stringify(body),
+    }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
   }
 
   function end() {
@@ -107,12 +117,7 @@
       seconds: +(DEMO_SECONDS - timeLeft).toFixed(2), distance: +stats.dist.toFixed(2),
       attacks: stats.attacks, hits: stats.hits, touched: stats.touched, banished: !ent.alive,
     };
-    fetch(url, {
-      method: 'POST', credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': canvas.dataset.csrf },
-      body: JSON.stringify(run),
-    })
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    post(url, run)
       .then((d) => { ui.saved.textContent = d.personal_best ? 'Run saved · NEW PERSONAL BEST' : 'Run saved to your history'; })
       .catch(() => { ui.saved.textContent = 'Could not save this run.'; });
   }

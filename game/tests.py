@@ -176,3 +176,62 @@ class RunTests(TestCase):
 
     def test_play_page_has_save_hook(self):
         self.assertContains(self.client.get("/play/"), 'data-save-url="/runs/"')
+
+
+class PlayNowExperimentTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.player = User.objects.create_user("p1", password="pw-12345678")
+        self.client.force_login(self.player)
+
+    def start(self):
+        return self.client.post("/runs/started/", "{}", content_type="application/json")
+
+    def test_one_view_per_session_in_first_variant(self):
+        from .models import PlayNowView
+
+        self.client.get("/?v=b")
+        self.client.get("/")
+        self.client.get("/?v=a")  # switching designs later does not add a second view
+        view = PlayNowView.objects.get()
+        self.assertEqual(view.variant, "b")
+        self.assertEqual(view.user, self.player)
+
+    def test_start_counts_once_per_session(self):
+        from .models import PlayNowStart
+
+        self.client.get("/?v=a")
+        self.assertTrue(self.start().json()["counted"])
+        self.assertFalse(self.start().json()["counted"])
+        self.assertEqual(PlayNowStart.objects.count(), 1)
+
+    def test_start_without_play_now_view_counts_nothing(self):
+        from .models import PlayNowStart
+
+        self.assertFalse(self.start().json()["counted"])
+        self.assertFalse(PlayNowStart.objects.exists())
+
+    def test_results_page_is_staff_only_and_correct(self):
+        from django.test import Client
+
+        self.client.get("/?v=a")
+        self.start()
+        other = Client()
+        other.force_login(get_user_model().objects.create_user("p2", password="pw-12345678"))
+        other.get("/?v=a")
+        third = Client()
+        third.force_login(get_user_model().objects.create_user("p3", password="pw-12345678"))
+        third.get("/?v=b")
+
+        self.assertEqual(self.client.get("/experiment/").status_code, 302)  # players are sent to admin login
+        staff = get_user_model().objects.create_user("boss", password="pw-12345678", is_staff=True)
+        self.client.force_login(staff)
+        r = self.client.get("/experiment/")
+        self.assertEqual(r.status_code, 200)
+        rows = {row["variant"]: row for row in r.context["rows"]}
+        self.assertEqual((rows["a"]["views"], rows["a"]["starts"], rows["a"]["rate"]), (2, 1, 0.5))
+        self.assertEqual((rows["b"]["views"], rows["b"]["starts"]), (1, 0))
+        self.assertContains(r, "50%")
+
+    def test_play_page_has_start_hook(self):
+        self.assertContains(self.client.get("/play/"), 'data-started-url="/runs/started/"')

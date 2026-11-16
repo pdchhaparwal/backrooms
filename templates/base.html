@@ -14,6 +14,7 @@
     {% if app_env != "production" %}<span class="env-badge env-{{ app_env }}" title="Not the production site">{{ app_env|upper }}</span>{% endif %}
     <nav>
       {% if user.is_authenticated %}
+        {% if user.is_staff %}<a href="{% url 'experiment' %}">experiment</a>{% endif %}
         <span class="who">{{ user.username }}</span>
         <form method="post" action="{% url 'logout' %}" class="inline">{% csrf_token %}<button type="submit" class="linkish">log out</button></form>
       {% else %}
