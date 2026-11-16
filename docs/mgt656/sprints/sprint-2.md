@@ -4,7 +4,7 @@
 Stand up **production** next to staging with its own database and a deliberate promote step, ship the first player-facing stories through reviewed pull requests, and get the AI feature (the radio, our survival assistant) working end to end.
 
 ## What shipped
-Every change went branch → pull request (`Closes #N`) → CI → teammate review (Apoorve approved #12–#15; his review held back #16, see below) → merge to `main` → staging → **Promote to production**.
+Every change went branch → pull request (`Closes #N`) → CI → teammate review (Apoorve approved #12–#15, held back #16 until we fixed the bug his review found, then approved it; see below) → merge to `main` → staging → **Promote to production**.
 
 - **Production environment** — [#2](https://github.com/pdchhaparwal/backrooms/issues/2), PR [#13](https://github.com/pdchhaparwal/backrooms/pull/13)
   - `render.yaml` defines `backrooms-staging` (deploys `main`) and `backrooms-production` (deploys the `production` branch), each with its own Neon Postgres `DATABASE_URL`
@@ -22,6 +22,7 @@ Every change went branch → pull request (`Closes #N`) → CI → teammate revi
 
 ## What works now
 - **Staging** https://backrooms-staging.onrender.com and **production** https://backrooms-production.onrender.com: sign up / log in, Play Now with your run history, instructions, the game with saved runs and the radio, `/afcf5a1` and `/afcf5a1/stats`, `/healthz`
+- The radio answers through OpenRouter on both environments (checked on staging: a real model reply in about 2 s, and a journal entry at the end of a run)
 - Staff (admin): `/experiment/` and the Django admin (runs, Play Now views and starts, radio messages, A/B impressions and clicks)
 
 ## Working with our AI agent
