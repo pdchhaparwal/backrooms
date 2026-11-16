@@ -4,7 +4,8 @@
 {% block content %}
 <section class="game-wrap">
   <div class="screen">
-    <canvas id="view" width="320" height="200" data-seconds="{{ demo_seconds }}" aria-label="Backrooms level 0"></canvas>
+    <canvas id="view" width="320" height="200" data-seconds="{{ demo_seconds }}"
+            data-save-url="{% url 'save-run' %}" data-csrf="{{ csrf_token }}" aria-label="Backrooms level 0"></canvas>
     <div class="hud"><span id="msg"></span><span id="timer">{{ demo_seconds }}.0s</span></div>
 
     <div class="overlay" id="overlay-start">
@@ -20,6 +21,7 @@
         <h2>END OF DEMO</h2>
         <p id="summary"></p>
         <p id="tested" class="muted"></p>
+        <p id="saved" class="muted" aria-live="polite"></p>
         <button type="button" class="btn" id="again">Play again (R)</button>
         <a class="btn" href="{% url 'home' %}">Menu</a>
       </div>

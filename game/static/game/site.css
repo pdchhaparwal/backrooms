@@ -65,6 +65,14 @@ input[type=text], input[type=password], input[type=email] { width: 100%; padding
 .keys figcaption { text-align: center; font-size: .8rem; margin-top: .5rem; color: #f5e88a; }
 .keys .wide { grid-column: 1 / -1; }
 
+/* ---------- Run history (Play Now page) ---------- */
+body:has(.runs) .stage { place-items: start center; align-content: center; gap: 2rem; }
+.runs { width: 100%; max-width: 34rem; }
+.runs h2 { font-size: 1rem; letter-spacing: .2em; text-transform: uppercase; margin: 0 0 .4rem; }
+.runs table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.runs th, .runs td { text-align: left; padding: .35rem .3rem; border-bottom: 1px dashed currentColor; }
+.theme-b .runs { color: #e9e6da; }
+
 /* ---------- Game page ---------- */
 .theme-play { background: #0b0b09; color: #e8e2c4; }
 .theme-play .topbar { border-bottom: 1px solid #2c2a22; }

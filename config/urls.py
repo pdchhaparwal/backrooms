@@ -12,6 +12,7 @@ urlpatterns = [
     path("", game.home, name="home"),
     path("instructions/", game.instructions, name="instructions"),
     path("play/", game.play, name="play"),
+    path("runs/", game.save_run, name="save-run"),
     path("healthz", game.healthz, name="healthz"),
     path("", include("abtest.urls")),
 ]
