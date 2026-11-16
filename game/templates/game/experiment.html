@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Play Now experiment · The Backrooms{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Play Now experiment</h1>
+  <p class="muted">Which Play Now design gets more sessions to start a run? Each session counts once, in the variant it saw first.</p>
+  <table id="experiment">
+    <thead><tr><th>Variant</th><th>Views</th><th>Runs started</th><th>Conversion</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr data-variant="{{ r.variant }}"><td>{{ r.label }}</td><td>{{ r.views }}</td><td>{{ r.starts }}</td><td>{% widthratio r.rate 1 100 %}%</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">Raw rows: <a href="{% url 'admin:game_playnowview_changelist' %}">views</a> · <a href="{% url 'admin:game_playnowstart_changelist' %}">starts</a></p>
+</section>
+{% endblock %}

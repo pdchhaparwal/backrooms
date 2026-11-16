@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -11,7 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
-from . import variants
+from . import experiment, variants
 from .forms import RunForm
 from .models import Run
 
@@ -47,6 +48,7 @@ def signup(request):
 def home(request):
     """The 'Play Now' page."""
     v = variants.pick(request, "home")
+    experiment.record_view(request, v)
     ctx = {
         **variants.context(v),
         "recent_runs": Run.objects.filter(user=request.user)[:5],
@@ -92,6 +94,19 @@ def save_run(request):
     is_best = Run.best_for(request.user).pk == run.pk and previous_best is not None
     logger.info("run saved user=%s run=%s best=%s", request.user.pk, run.pk, is_best)
     return JsonResponse({"id": run.pk, "personal_best": is_best, "first_run": previous_best is None}, status=201)
+
+
+@require_POST
+def run_started(request):
+    """Called by the game when a run starts: a conversion for the Play Now experiment."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "login required"}, status=401)
+    return JsonResponse({"counted": experiment.record_start(request)})
+
+
+@staff_member_required
+def experiment_results(request):
+    return render(request, "game/experiment.html", {"rows": experiment.summary()})
 
 
 def healthz(request):
