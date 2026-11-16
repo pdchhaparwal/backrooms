@@ -64,8 +64,10 @@
 
   // ---- state ----
   let state, timeLeft, player, ent, stats, held, attackT, touchT, msgT, walkPhase, flicker, flickerT;
+  let runSeq = 0;  // bumps on every restart, so late radio replies can't land on a newer run
 
   function reset() {
+    runSeq++;
     state = 'ready';
     timeLeft = DEMO_SECONDS;
     player = { x: 1.5, y: 5.5, a: 0 };
@@ -124,23 +126,39 @@
     if (runId) s.run_id = runId;
     return s;
   }
-  function askRadio(phase, runId) {
+  let radioQueuedEnd = null;  // end-of-run request that arrived while a hint was still pending
+  function askRadio(phase, runId, snapshot) {
     const url = canvas.dataset.radioUrl;
-    if (!url || !ui.radio || radioBusy) return;
+    if (!url || !ui.radio) return;
+    const body = snapshot || situation(phase, runId);
+    if (radioBusy) {
+      // Never drop the end-of-run journal: send it as soon as the pending hint returns.
+      // (A second mid-run H press while one is pending is simply ignored.)
+      if (phase === 'ended') radioQueuedEnd = { runId, body, seq: runSeq };
+      return;
+    }
+    const seq = runSeq;
     radioBusy = true;
     ui.radio.classList.add('waiting');
     ui.radioText.textContent = 'kkhhhh… tuning…';
-    post(url, situation(phase, runId))
+    post(url, body)
       .then((d) => {
         ui.radioText.textContent = d.hint;
-        if (phase === 'ended' && ui.journal) {
+        // Only show a journal for the run that is still on screen (not after R restarted it).
+        if (phase === 'ended' && ui.journal && seq === runSeq) {
           ui.journal.innerHTML = '<b>JOURNAL</b> ';
           ui.journal.append(document.createTextNode(d.journal));
           ui.journal.hidden = false;
         }
       })
       .catch((status) => { ui.radioText.textContent = status === 429 ? 'The radio is silent. It has said enough for today.' : 'Only static.'; })
-      .finally(() => { radioBusy = false; ui.radio.classList.remove('waiting'); });
+      .finally(() => {
+        radioBusy = false;
+        ui.radio.classList.remove('waiting');
+        const queued = radioQueuedEnd;
+        radioQueuedEnd = null;
+        if (queued && queued.seq === runSeq) askRadio('ended', queued.runId, queued.body);
+      });
   }
 
   // Send the finished run to the server, which stores it for the logged-in player.
