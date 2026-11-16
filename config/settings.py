@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "game",
     "abtest",
+    "assistant",
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,13 @@ with open(TEAM_FILE, encoding="utf-8") as fh:
 TEAM_NICKNAME = os.environ.get("TEAM_NICKNAME") or TEAM.get("team", "")
 TEAM_MEMBER_NICKNAMES = [m["nickname"] for m in TEAM.get("members", [])]
 AB_HASH = hashlib.sha1(TEAM_NICKNAME.encode("utf-8")).hexdigest()[:7]
+
+# AI survival assistant ("the radio"), called through OpenRouter from the server only.
+# Without a key the radio still answers, using built-in rules (assistant/llm.py: fallback).
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
+OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-haiku-4.5")
+OPENROUTER_TIMEOUT = float(os.environ.get("OPENROUTER_TIMEOUT", "8"))
+ASSISTANT_DAILY_LIMIT = int(os.environ.get("ASSISTANT_DAILY_LIMIT", "40"))  # radio replies per player per 24h
 
 # Length of the playable demo, in seconds (override per run with /play/?t=30).
 DEMO_SECONDS = int(os.environ.get("DEMO_SECONDS", "5"))

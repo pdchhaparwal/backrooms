@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 
+from assistant import views as assistant
 from game import views as game
 
 urlpatterns = [
@@ -15,6 +16,7 @@ urlpatterns = [
     path("runs/", game.save_run, name="save-run"),
     path("runs/started/", game.run_started, name="run-started"),
     path("experiment/", game.experiment_results, name="experiment"),
+    path("assistant/radio/", assistant.radio, name="assistant-radio"),
     path("healthz", game.healthz, name="healthz"),
     path("", include("abtest.urls")),
 ]
