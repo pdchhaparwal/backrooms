@@ -1,7 +1,9 @@
 # Team config. The app reads this file: the A/B page lives at /<first 7 hex chars of sha1(team)>.
-# `team` must match the course-assigned team nickname exactly.
-# `nickname` = each member's course nickname. GitHub usernames are used until we have them.
-team: 656-mba-backrooms
+# `team` must match the course-assigned TEAM nickname exactly (as shown on 656.mba), not a member's.
+#   printf %s mighty-frog | sha1sum   ->  afcf5a1...
+# `nickname` = each member's course nickname (shown on 656.mba). Members whose course
+# nickname we have not confirmed yet still show their GitHub username.
+team: mighty-frog
 framework: django
 database: postgres
 members:
@@ -11,7 +13,7 @@ members:
     github: apoorve-tyagi
   - nickname: PrabhashC
     github: PrabhashC
-  - nickname: keshhh
+  - nickname: glamorous-turtle
     github: keshhh
   - nickname: GLM321
     github: GLM321
