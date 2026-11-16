@@ -1,0 +1,16 @@
+<section class="runs" id="my-runs" aria-labelledby="runs-title">
+  <h2 id="runs-title">Your runs</h2>
+  {% if best_run %}
+    <p class="best" id="best-run">Best: <b>{{ best_run.distance|floatformat:1 }}</b> tiles in {{ best_run.seconds|floatformat:1 }}s{% if best_run.banished %} · <b>entity banished</b>{% endif %} <span class="muted">({{ best_run.created_at|date:"M j, H:i" }})</span></p>
+    <table>
+      <thead><tr><th>When</th><th>Tiles</th><th>Hits</th><th>Entity</th></tr></thead>
+      <tbody>
+      {% for r in recent_runs %}
+        <tr><td>{{ r.created_at|date:"M j, H:i" }}</td><td>{{ r.distance|floatformat:1 }}</td><td>{{ r.hits }}/{{ r.attacks }}</td><td>{% if r.banished %}banished{% else %}still out there{% endif %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted" id="no-runs">No runs yet. Your last 5 runs and your best will show up here.</p>
+  {% endif %}
+</section>

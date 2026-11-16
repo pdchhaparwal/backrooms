@@ -103,3 +103,76 @@ class VariantTests(TestCase):
     @override_settings(APP_ENV="production")
     def test_no_badge_on_production(self):
         self.assertNotContains(self.client.get("/"), "env-badge")
+
+
+class RunTests(TestCase):
+    RUN = {"seconds": 5, "distance": 7.25, "attacks": 3, "hits": 1, "touched": 2, "banished": True}
+
+    def setUp(self):
+        User = get_user_model()
+        self.alice = User.objects.create_user("alice", password="pw-12345678")
+        self.bob = User.objects.create_user("bob", password="pw-12345678")
+        self.client.force_login(self.alice)
+
+    def post(self, data, client=None):
+        import json
+
+        return (client or self.client).post("/runs/", json.dumps(data), content_type="application/json")
+
+    def test_saves_run_for_session_user(self):
+        r = self.post({**self.RUN, "user": self.bob.pk})  # a smuggled user id is ignored
+        self.assertEqual(r.status_code, 201)
+        self.assertTrue(r.json()["first_run"])
+        from .models import Run
+
+        run = Run.objects.get()
+        self.assertEqual(run.user, self.alice)
+        self.assertEqual((run.distance, run.attacks, run.hits, run.touched, run.banished), (7.25, 3, 1, 2, True))
+        self.assertEqual(self.bob.runs.count(), 0)
+
+    def test_login_required(self):
+        self.client.logout()
+        self.assertIn(self.post(self.RUN).status_code, (401, 403))
+        from .models import Run
+
+        self.assertFalse(Run.objects.exists())
+
+    def test_get_not_allowed(self):
+        self.assertEqual(self.client.get("/runs/").status_code, 405)
+
+    def test_rejects_bad_input(self):
+        for bad in ({**self.RUN, "distance": -1}, {**self.RUN, "hits": 9}, {**self.RUN, "seconds": 99999}, {"distance": "far"}):
+            self.assertEqual(self.post(bad).status_code, 400, bad)
+        self.assertEqual(self.client.post("/runs/", "not json", content_type="application/json").status_code, 400)
+        self.assertEqual(self.post([1, 2]).status_code, 400)
+
+    def test_csrf_enforced(self):
+        from django.test import Client
+
+        strict = Client(enforce_csrf_checks=True)
+        strict.force_login(self.alice)
+        self.assertEqual(self.post(self.RUN, client=strict).status_code, 403)
+
+    def test_personal_best_flag(self):
+        self.post({**self.RUN, "banished": False, "distance": 3})
+        self.assertFalse(self.post({**self.RUN, "banished": False, "distance": 1}).json()["personal_best"])
+        self.assertTrue(self.post({**self.RUN, "banished": False, "distance": 9}).json()["personal_best"])
+        # banishing the entity beats any distance without banishing
+        self.assertTrue(self.post({**self.RUN, "banished": True, "distance": 0.5}).json()["personal_best"])
+
+    def test_play_now_shows_last_five_and_best(self):
+        for d in range(1, 8):
+            self.post({**self.RUN, "banished": False, "distance": d})
+        r = self.client.get("/?v=a")
+        self.assertEqual(len(r.context["recent_runs"]), 5)
+        self.assertEqual(r.context["best_run"].distance, 7)
+        self.assertContains(r, 'id="best-run"')
+        self.assertNotContains(r, 'id="no-runs"')
+        # another player's page shows none of alice's runs
+        self.client.force_login(self.bob)
+        r = self.client.get("/?v=b")
+        self.assertContains(r, 'id="no-runs"')
+        self.assertIsNone(r.context["best_run"])
+
+    def test_play_page_has_save_hook(self):
+        self.assertContains(self.client.get("/play/"), 'data-save-url="/runs/"')

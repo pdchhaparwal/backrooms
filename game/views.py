@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.conf import settings
@@ -6,10 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.db import connection
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from . import variants
+from .forms import RunForm
+from .models import Run
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +47,12 @@ def signup(request):
 def home(request):
     """The 'Play Now' page."""
     v = variants.pick(request, "home")
-    return render(request, f"game/home_{v}.html", variants.context(v))
+    ctx = {
+        **variants.context(v),
+        "recent_runs": Run.objects.filter(user=request.user)[:5],
+        "best_run": Run.best_for(request.user),
+    }
+    return render(request, f"game/home_{v}.html", ctx)
 
 
 @login_required
@@ -60,6 +69,29 @@ def play(request):
     except ValueError:
         seconds = settings.DEMO_SECONDS
     return render(request, "game/play.html", {"demo_seconds": seconds, "theme": "theme-play"})
+
+
+@require_POST
+def save_run(request):
+    """Save the stats of a finished run for the logged-in player (JSON in, JSON out)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "login required"}, status=401)
+    try:
+        payload = json.loads(request.body or b"{}")
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error": "invalid JSON"}, status=400)
+    if not isinstance(payload, dict):
+        return JsonResponse({"error": "expected a JSON object"}, status=400)
+    form = RunForm(payload)
+    if not form.is_valid():
+        return JsonResponse({"error": "invalid run", "fields": form.errors}, status=400)
+    previous_best = Run.best_for(request.user)
+    run = form.save(commit=False)
+    run.user = request.user  # always the session user, never a value from the request
+    run.save()
+    is_best = Run.best_for(request.user).pk == run.pk and previous_best is not None
+    logger.info("run saved user=%s run=%s best=%s", request.user.pk, run.pk, is_best)
+    return JsonResponse({"id": run.pk, "personal_best": is_best, "first_run": previous_best is None}, status=201)
 
 
 def healthz(request):

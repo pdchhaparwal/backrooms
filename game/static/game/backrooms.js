@@ -13,7 +13,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = {
     timer: $('timer'), msg: $('msg'), start: $('overlay-start'), end: $('overlay-end'),
-    summary: $('summary'), tested: $('tested'), again: $('again'),
+    summary: $('summary'), tested: $('tested'), again: $('again'), saved: $('saved'),
   };
 
   // '#' = wall. Randomly segmented, mostly empty rooms.
@@ -74,6 +74,7 @@
     attackT = 0; touchT = 0; msgT = 0; walkPhase = 0; flicker = 1; flickerT = 0;
     ui.start.hidden = false;
     ui.end.hidden = true;
+    if (ui.saved) ui.saved.textContent = '';
     ui.msg.textContent = '';
     ui.timer.textContent = DEMO_SECONDS.toFixed(1) + 's';
   }
@@ -94,6 +95,26 @@
       (ent.alive ? ' · the entity is still out there' : ' · <b>entity banished</b>');
     ui.tested.textContent = 'Controls tested: ' + all.map((c) => KEY_LABELS[c] + (stats.tested.has(c) ? ' ✓' : ' ·')).join('  ');
     ui.end.hidden = false;
+    saveRun();
+  }
+
+  // Send the finished run to the server, which stores it for the logged-in player.
+  function saveRun() {
+    const url = canvas.dataset.saveUrl;
+    if (!url || !ui.saved) return;
+    ui.saved.textContent = 'saving run…';
+    const run = {
+      seconds: +(DEMO_SECONDS - timeLeft).toFixed(2), distance: +stats.dist.toFixed(2),
+      attacks: stats.attacks, hits: stats.hits, touched: stats.touched, banished: !ent.alive,
+    };
+    fetch(url, {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': canvas.dataset.csrf },
+      body: JSON.stringify(run),
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((d) => { ui.saved.textContent = d.personal_best ? 'Run saved · NEW PERSONAL BEST' : 'Run saved to your history'; })
+      .catch(() => { ui.saved.textContent = 'Could not save this run.'; });
   }
 
   function flash(text) { ui.msg.textContent = text; msgT = 1.2; }
